@@ -38,6 +38,33 @@ bool Sphere::intersect(const Ray& r, HitInfo& hit, unsigned int prim_idx) const
   //        (b) There is no need to handle the case where the 
   //            discriminant is zero separately.
 
+	const float bhalf = dot((r.origin - center), r.direction);
+	const float c = dot((r.origin - center), (r.origin - center)) - radius * radius;
+	const float sqrtT= sqrt(bhalf * bhalf - c);
+	if ((bhalf * bhalf - c) < 0) {
+		return false;
+	}
+	
+	const float t1 = -bhalf - sqrtT;
+	const float t2 = -bhalf + sqrtT;
+	if (r.tmin <= t1 && t1<=r.tmax) {
+		hit.has_hit = true;
+		hit.dist = t1;
+		hit.position = r.origin + r.direction * t1;
+		hit.geometric_normal = normalize(hit.position-center);
+		hit.shading_normal = normalize(hit.position - center);
+		hit.material = &get_material();
+		return true;
+	}
+	else if (r.tmin <= t2 && t2<=r.tmax) {
+		hit.has_hit = true;
+		hit.dist = t2;
+		hit.position = r.origin + r.direction * t2;
+		hit.geometric_normal = normalize(hit.position - center);
+		hit.shading_normal = normalize(hit.position - center);
+		hit.material = &get_material();
+		return true;
+	}
   return false;
 }
 

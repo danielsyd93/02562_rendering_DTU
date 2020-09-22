@@ -32,7 +32,7 @@ float3 Glossy::shade(const Ray& r, HitInfo& hit, bool emit) const
   //       the shader for the surface it hit.
 
   //return Mirror::shade(r, hit, emit);
-  //return Transparent::shade(r, hit, emit);
-
-  return Phong::shade(r, hit, emit);
+  return Transparent::shade(r, hit, emit);
+  
+  //return Phong::shade(r, hit, emit);
 }

@@ -33,6 +33,18 @@ float3 Lambertian::shade(const Ray& r, HitInfo& hit, bool emit) const
   // rho_d              (difuse reflectance of the material)
   //
   // Hint: Call the sample function associated with each light in the scene.
+  const float3 frac = rho_d*M_1_PIf;
+
+  for (int i = 0; i < lights.size();i++) {
+	  float3 dir=make_float3(0);
+	  float3 L= make_float3(0);
+	  if (lights[i]->sample(hit.position,dir,L)) {
+		  const float cosCheck = dot(dir, hit.shading_normal);
+		  if (cosCheck > 0) {
+			  result += frac * L * cosCheck;
+		  }
+	  }
+  }
 
   return result + Emission::shade(r, hit, emit);
 }
