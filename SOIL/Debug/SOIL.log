@@ -1,0 +1,9 @@
+﻿cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+cl : command line warning D9030: '/Gm' is incompatible with multiprocessing; ignoring /MP switch
+  stb_image_write.c
+  stb_image.c
+  SOIL.c
+  image_helper.c
+  image_DXT.c
+  Generating Code...
+  SOIL.vcxproj -> C:\Users\Danie\OneDrive\Dokumenter\GitHub\02562_rendering_DTU\Debug\SOIL.lib
