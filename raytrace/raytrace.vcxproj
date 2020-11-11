@@ -69,6 +69,10 @@
       <TargetMachine>MachineX86</TargetMachine>
       <SubSystem>Console</SubSystem>
     </Link>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

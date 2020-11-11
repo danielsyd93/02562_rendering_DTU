@@ -10,7 +10,7 @@ using namespace optix;
 
 float3 PhotonCaustics::shade(const Ray& r, HitInfo& hit, bool emit) const
 {
-  float3 rho_d = get_diffuse(hit);
+  const float3 rho_d = get_diffuse(hit);
 
   // Make a radiance estimate using the caustics photon map
   //
@@ -29,6 +29,8 @@ float3 PhotonCaustics::shade(const Ray& r, HitInfo& hit, bool emit) const
   // Hint: Use the function tracer->caustics_irradiance(...) to do an
   //       irradiance estimate using the photon map. This is not the 
   //       same as a radiance estimate.
+
+  const float3 result=rho_d*M_PI_4f*tracer->caustics_irradiance(hit, max_dist, photons);
   
-  return Lambertian::shade(r, hit, emit);
+  return result+Lambertian::shade(r, hit, emit);
 }

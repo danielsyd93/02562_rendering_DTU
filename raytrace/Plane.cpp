@@ -39,27 +39,36 @@ bool Plane::intersect(const Ray& r, HitInfo& hit, unsigned int prim_idx) const
   //
   // Hint: The OptiX math library has a function dot(v, w) which returns
   //       the dot product of the vectors v and w.
-
+	
 	const float tmarkTop = -(dot(r.origin, onb.m_normal) + d);
 	const float tmarkBot = dot(r.direction, onb.m_normal);
-
-	if(fabsf(tmarkBot)<1e-7){
+	if (abs(tmarkBot) < 1e-7) {
 		return false;
 	}
-
+	
+	
 	const float tmark = tmarkTop / tmarkBot;
-
 	if (r.tmin <= tmark && tmark <= r.tmax) {
 		hit.has_hit = true;
 		hit.dist = tmark;
-		hit.position = r.origin + tmark * r.direction;
 		hit.geometric_normal = normalize(onb.m_normal);
 		hit.shading_normal = normalize(onb.m_normal);
+		hit.position = r.origin + r.direction * tmark;
 		hit.material = &get_material();
+		if (material.has_texture) {
+			float u;
+			float v;
+			get_uv(hit.position, u, v);
+			hit.texcoord = make_float3(u, v, 0);
+
+		}
+
+
 		return true;
 	}
-
 	return false;
+		//return false;
+  
 }
 
 void Plane::transform(const Matrix4x4& m)
@@ -87,7 +96,7 @@ void Plane::get_uv(const float3& hit_pos, float& u, float& v) const
   // position           (origin of the plane)
   // onb                (orthonormal basis of the plane: normal [n], tangent [b1], binormal [b2])
   // tex_scale          (constant for scaling the texture coordinates)
-
-  u = 0.0f;
-  v = 0.0f;
+	
+	u = dot(onb.m_tangent, (hit_pos - position))* tex_scale;
+	v = dot(onb.m_binormal, (hit_pos - position))* tex_scale;
 }

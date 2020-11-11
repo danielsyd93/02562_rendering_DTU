@@ -1,2 +1,2 @@
-C:\Users\Danie\OneDrive\Dokumenter\GitHub\02562_rendering_DTU\Debug\SOIL.pdb
-C:\Users\Danie\OneDrive\Dokumenter\GitHub\02562_rendering_DTU\SOIL\Debug\SOIL.pdb
+C:\Users\Danie\Documents\DTU\Rendering\code\Debug\SOIL.pdb
+C:\Users\Danie\Documents\DTU\Rendering\code\SOIL\Debug\SOIL.pdb

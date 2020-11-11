@@ -19,5 +19,28 @@ float3 GlossyVolume::shade(const Ray& r, HitInfo& hit, bool emit) const
   // by the transmittance of the material if the ray is inside (as in
   // the volume shader).
 
-  return Volume::shade(r, hit, emit);
+	//const float3 rho_d = get_diffuse(hit);
+	const float3 rho_s = get_specular(hit);
+	const  float s = get_shininess(hit);
+	float3 result = make_float3(0);
+	/*if (length(rho_d + rho_s) > 1) {
+		return result;
+	}*/
+	float3 dir = make_float3(0);
+	float3 L = make_float3(0);
+	//const float3 frac = rho_d * M_1_PIf;
+	const float3 shine_frac = rho_s * M_1_PIf * (s + 2) / 2;
+	float3 dir_reflect = make_float3(0);
+
+
+	for (int i = 0; i < lights.size(); ++i) {
+		if (lights[i]->sample(hit.position, dir, L)) {
+			dir_reflect = reflect(-dir, hit.shading_normal);
+			result += (/*frac+*/ shine_frac * pow(fmaxf(dot(-r.direction, dir_reflect), 0), s)) * L * fmaxf(dot(dir, hit.shading_normal), 0);
+		}
+	}
+
+
+
+	return Volume::shade(r, hit, emit) + result;
 }

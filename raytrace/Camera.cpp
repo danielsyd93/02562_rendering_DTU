@@ -37,12 +37,13 @@ void Camera::set(const float3& eye_point, const float3& view_point, const float3
   //        (c) The following constant is the field of view that you should 
   //            get with the default scene (if you set a breakpoint and run
   //            in Debug mode, you can use it to check your code).
-  //fov = 53.13f;
 
   ip_normal = normalize(lookat - eye);
   ip_xaxis = normalize(cross(ip_normal, up));
-  ip_yaxis = normalize(cross(ip_xaxis, ip_normal));
-  fov = 2 * atan(1 / (2 * cam_const)) * 180 * M_1_PIf;
+  ip_yaxis = -normalize(cross(ip_normal, ip_xaxis));
+  fov = 2*atan(1/(2*cam_const))*180*M_1_PIf;
+
+  //fov = 53.13f;
 }
 
 /// Get direction of viewing ray from image coords.
@@ -50,8 +51,11 @@ float3 Camera::get_ray_dir(const float2& coords) const
 {
   // Given the image plane coordinates, compute the normalized ray
   // direction by a change of basis.
+	
+
 	const float3 q_c = ip_xaxis * coords.x + ip_yaxis * coords.y + ip_normal * cam_const;
-  return normalize(q_c);
+	return normalize(q_c);
+  //return make_float3(0.0f);
 }
 
 /// Return the ray corresponding to a set of image coords
@@ -63,7 +67,7 @@ Ray Camera::get_ray(const float2& coords) const
   //
   // Hint: You can set the ray type to 0 as the framework currently
   //       does not use different ray types.
-  return Ray(eye,get_ray_dir(coords),0,1e-4); 
+  return Ray(eye,get_ray_dir(coords),0,0,RT_DEFAULT_MAX); 
 }
 
 // OpenGL

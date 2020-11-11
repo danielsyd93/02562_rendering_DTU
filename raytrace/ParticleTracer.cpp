@@ -90,9 +90,14 @@ void ParticleTracer::trace_particle(const Light* light, const unsigned int caust
   // Shoot a particle from the sampled source
   Ray r;
   HitInfo hit;
-
+  float3 Phi;
+  light->emit(r,hit,Phi);
+  if(!hit.has_hit||!scene->is_specular(hit.material)){
+      return;
+  }
+  
   // Forward from all specular surfaces
-  while(scene->is_specular(hit.material) && hit.trace_depth < 500)
+  while(scene->is_specular(hit.material) && hit.trace_depth < 4)
   {
     switch(hit.material->illum)
     {
@@ -106,13 +111,45 @@ void ParticleTracer::trace_particle(const Light* light, const unsigned int caust
     case 12: // absorbing glossy volume
       {
         // Handle absorption here (Worksheet 8)
+        if (dot(r.direction, hit.shading_normal) > 0) {
+            Phi *= get_transmittance(hit);
+        }
       }
     case 2:  // glossy materials
     case 4:  // transparent materials
-      {
+    {
+        float3 d = get_diffuse(hit);
+        float probability = (d.x + d.y + d.z) / 3;
+        float chi = mt_random();
+        Ray ray_new;
+        HitInfo hit_new;
+        float R ;
+        bool check = trace_refracted(r, hit, ray_new, hit_new, R);
+         
+        if (chi < probability)
+        {
+            hit_new.has_hit = false;
+            if (!trace_reflected(r, hit, ray_new, hit_new))
+            {
+                return;
+            }
+            r = ray_new;
+            hit = hit_new;
+        }
+        else if (chi < (1 - probability))
+        {
+            if (!check) 
+            {
+                return;
+            }
+            r = ray_new;
+            hit = hit_new;
+        }
+        
         // Forward from transparent surfaces here
-        return;
-      }
+        //return; 
+        
+    }
       break;
     default: 
       return;
@@ -122,6 +159,8 @@ void ParticleTracer::trace_particle(const Light* light, const unsigned int caust
   // Store in caustics map at first diffuse surface
   // Hint: When storing, the convention is that the photon direction
   //       should point back toward where the photon came from.
+  
+  caustics.store(Phi, hit.position, -r.direction);
 }
 
 float3 ParticleTracer::get_diffuse(const HitInfo& hit) const
@@ -139,6 +178,8 @@ float3 ParticleTracer::get_transmittance(const HitInfo& hit) const
     // this material property as an absorption coefficient. Since absorption has an effect
     // opposite that of reflection, using 1/rho_d-1 makes it more intuitive for the user.
     float3 rho_d = make_float3(hit.material->diffuse[0], hit.material->diffuse[1], hit.material->diffuse[2]);
+    const float3 sigma_a = 1 / rho_d - 1;
+    return expf(-sigma_a * hit.dist);
   }
   return make_float3(1.0f);
 }

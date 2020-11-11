@@ -15,7 +15,8 @@ using namespace optix;
 float3 RayCaster::compute_pixel(unsigned int x, unsigned int y) const
 {
   float3 result = make_float3(0.0f);
-
+  float3 red= make_float3(1,0,0); //make the result red W1E1
+  
   // Use the scene and its camera
   // to cast a ray that computes the color of the pixel at index (x, y).
   //
@@ -32,19 +33,29 @@ float3 RayCaster::compute_pixel(unsigned int x, unsigned int y) const
   // Hints: (a) Use the function get_shader(...) to get the shader of the
   //            intersected material after the ray has been traced.
   //        (b) Use get_background(...) if the ray does not hit anything.
-  float2 pos = make_float2(x, y) * win_to_ip + lower_left;
-  HitInfo hit;
-  Ray r = scene->get_camera()->get_ray(pos);
 
-  scene->closest_hit(r, hit);
-  if (hit.has_hit) {
-      result += get_shader(hit)->shade(r, hit);
-  }
-  else {
-      result += get_background();
-  }
+       
+      float2 pos = make_float2(x, y) * win_to_ip + lower_left;
+
+      
+      
+          Ray r = scene->get_camera()->get_ray(pos);
+          HitInfo hit;
+
+          scene->closest_hit(r, hit);
+          if (hit.has_hit) {
+              result += get_shader(hit)->shade(r, hit);
+          }
+          else {
+              result += get_background();
+
+          }
+     
+
+          //result = r.direction*0.5+0.5;
 
   return result;
+  //return red;
 }
 
 float3 RayCaster::get_background(const float3& dir) const

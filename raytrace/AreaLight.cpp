@@ -18,6 +18,7 @@ bool AreaLight::sample(const float3& pos, float3& dir, float3& L) const
   const IndexedFaceSet& normals = mesh->normals;
   L = make_float3(0.0f);
 
+  
   // Compute output and return value given the following information.
   //
   // Input:  pos  (the position of the geometry in the scene)
@@ -37,8 +38,26 @@ bool AreaLight::sample(const float3& pos, float3& dir, float3& L) const
   //        the light source bounding box.
   //        (b) Use the function get_emission(...) to get the radiance
   //        emitted by a triangle in the mesh.
+  float3 center = mesh->compute_bbox().center();
+  const float dist= length(center - pos);
+  dir = normalize(center - pos);
 
-  return false;  
+  if (shadows && tracer->trace_to_any(Ray(pos, dir, 0, 1e-4, (dist - 1e-4)), HitInfo())) {
+	  return false;
+  }
+
+  for (unsigned int i = 0; i < mesh->geometry.no_faces(); ++i) {
+	 float3 n = normalize(normals.vertex(normals.face(i).x) + normals.vertex(normals.face(i).y) + normals.vertex(normals.face(i).z));
+	 L+= dot(-dir, n)* get_emission(i)* mesh->face_areas[i];
+ 
+  }
+  L *= 1 / (dist * dist);
+  
+
+
+  
+
+  return true;  
 }
 
 bool AreaLight::emit(Ray& r, HitInfo& hit, float3& Phi) const
